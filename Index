@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spotify Remote — Setup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --green:   #1DB954;
+      --green-d: #17a349;
+      --black:   #0a0a0a;
+      --card:    #111111;
+      --border:  #1e1e1e;
+      --text:    #f5f5f5;
+      --muted:   #666;
+      --mono:    'DM Mono', monospace;
+      --sans:    'Syne', sans-serif;
+    }
+ 
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+ 
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 0;
+    }
+ 
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+    }
+ 
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeUp 0.6s ease both;
+    }
+ 
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+ 
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--green);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+ 
+    .logo-icon svg { width: 28px; height: 28px; fill: #000; }
+ 
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+ 
+    h1 span { color: var(--green); }
+ 
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-top: 8px;
+    }
+ 
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+ 
+    .step {
+      display: none;
+    }
+    .step.active { display: block; }
+ 
+    /* Step indicator */
+    .steps-indicator {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .step-dot {
+      height: 3px;
+      flex: 1;
+      border-radius: 2px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+    .step-dot.done { background: var(--green); }
+ 
+    .step-label {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+ 
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+ 
+    p.desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+ 
+    /* Input */
+    .field-label {
+      font-size: 12px;
+      font-family: var(--mono);
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: block;
+    }
+ 
+    input[type="text"] {
+      width: 100%;
+      background: #0a0a0a;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--mono);
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+ 
+    input[type="text"]:focus {
+      border-color: var(--green);
+    }
+ 
+    input[type="text"]::placeholder { color: #333; }
+ 
+    /* Buttons */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-align: center;
+      transition: opacity 0.2s, transform 0.1s;
+      text-decoration: none;
+    }
+ 
+    .btn:active { transform: scale(0.98); }
+ 
+    .btn-primary {
+      background: var(--green);
+      color: #000;
+    }
+ 
+    .btn-primary:hover { background: var(--green-d); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+ 
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 0.5px solid var(--border);
+      margin-top: 10px;
+      font-size: 13px;
+    }
+ 
+    .btn-ghost:hover { color: var(--text); border-color: #444; }
+ 
+    /* Info box */
+    .info-box {
+      background: #0d1a10;
+      border: 0.5px solid #1a3a1e;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+      font-family: var(--mono);
+      color: #4a9e5c;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+ 
+    .info-box strong { color: var(--green); }
+ 
+    /* IP display box */
+    .ip-display {
+      background: #0a0a0a;
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+ 
+    .ip-display span {
+      color: var(--green);
+      font-size: 16px;
+      display: block;
+      margin-top: 4px;
+    }
+ 
+    /* Status */
+    .status {
+      text-align: center;
+      padding: 20px 0;
+    }
+ 
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+ 
+    .status-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+ 
+    .status-desc {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+ 
+    .success-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+    }
+ 
+    .error-icon {
+      width: 48px;
+      height: 48px;
+      background: #3a1010;
+      border: 0.5px solid #7a2020;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+    }
+ 
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      font-family: var(--mono);
+      color: #333;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+ 
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+ 
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+ 
+<div class="wrap">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">
+        <!-- Simple music note SVG -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/>
+        </svg>
+      </div>
+      <h1>Spotify <span>Remote</span></h1>
+    </div>
+    <p class="subtitle">device setup // connect your account</p>
+  </div>
+ 
+  <div class="card">
+    <!-- Step dots -->
+    <div class="steps-indicator">
+      <div class="step-dot" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+    </div>
+ 
+    <!-- STEP 0: Enter IP -->
+    <div class="step active" id="step-0">
+      <p class="step-label">Step 01 — Device IP</p>
+      <h2>Find your device</h2>
+      <p class="desc">
+        Power on your Spotify Remote and connect it to your WiFi.
+        The IP address will appear on the screen. Enter it below.
+      </p>
+      <div class="info-box">
+        💡 Your IP looks like <strong>192.168.1.XXX</strong><br>
+        It's displayed on the device screen after it connects to WiFi.
+      </div>
+      <label class="field-label" for="ip-input">Device IP address</label>
+      <input
+        type="text"
+        id="ip-input"
+        placeholder="192.168.1.100"
+        pattern="^(\d{1,3}\.){3}\d{1,3}$"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+      <button class="btn btn-primary" id="btn-connect" onclick="goToSpotify()">
+        Continue to Spotify Login →
+      </button>
+    </div>
+ 
+    <!-- STEP 1: Spotify login (auto-redirect, this step is brief) -->
+    <div class="step" id="step-1">
+      <p class="step-label">Step 02 — Spotify Auth</p>
+      <div class="status">
+        <div class="spinner"></div>
+        <p class="status-title">Redirecting to Spotify…</p>
+        <p class="status-desc">You'll be asked to log in and allow access.</p>
+      </div>
+    </div>
+ 
+    <!-- STEP 2: Sending to device -->
+    <div class="step" id="step-2">
+      <p class="step-label">Step 03 — Sending to device</p>
+      <div class="status" id="sending-status">
+        <div class="spinner"></div>
+        <p class="status-title">Connecting to your remote…</p>
+        <p class="status-desc" id="status-desc">Sending auth code to device at <span id="ip-display-inline"></span></p>
+      </div>
+    </div>
+ 
+  </div><!-- end card -->
+ 
+  <p class="footer">spotify-remote setup page &nbsp;·&nbsp; connect once, play forever</p>
+</div>
+ 
+<script>
+// ── CONFIG — update these with your Spotify app credentials ──────────────────
+const CLIENT_ID   = 'YOUR_CLIENT_ID_HERE';
+const REDIRECT_URI = 'https://YOUR-USERNAME.github.io/spotify-remote/'; // this page's URL
+const SCOPE       = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
+// ─────────────────────────────────────────────────────────────────────────────
+ 
+function updateDots(activeStep) {
+  for (let i = 0; i < 3; i++) {
+    document.getElementById('dot-' + i).classList.toggle('done', i <= activeStep);
+  }
+}
+ 
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  updateDots(n);
+}
+ 
+function goToSpotify() {
+  const ip = document.getElementById('ip-input').value.trim();
+ 
+  // Basic IP validation
+  const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (!ipPattern.test(ip)) {
+    document.getElementById('ip-input').style.borderColor = '#7a2020';
+    document.getElementById('ip-input').focus();
+    return;
+  }
+ 
+  // Save IP so we can use it after Spotify redirects back
+  sessionStorage.setItem('esp32_ip', ip);
+ 
+  showStep(1);
+ 
+  // Build Spotify auth URL and redirect
+  const params = new URLSearchParams({
+    client_id:     CLIENT_ID,
+    response_type: 'code',
+    redirect_uri:  REDIRECT_URI,
+    scope:         SCOPE,
+    show_dialog:   'false',
+  });
+ 
+  setTimeout(() => {
+    window.location.href = 'https://accounts.spotify.com/authorize?' + params.toString();
+  }, 800);
+}
+ 
+// ── Handle OAuth callback ─────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const code   = params.get('code');
+  const error  = params.get('error');
+ 
+  if (error) {
+    showStep(2);
+    document.getElementById('sending-status').innerHTML = `
+      <div class="error-icon">✕</div>
+      <p class="status-title">Spotify login cancelled</p>
+      <p class="status-desc">You cancelled the login. Reload the page to try again.</p>
+      <button class="btn btn-ghost" style="margin-top:20px" onclick="window.location.href=window.location.pathname">
+        Try again
+      </button>`;
+    return;
+  }
+ 
+  if (code) {
+    // We're back from Spotify with an auth code
+    const ip = sessionStorage.getItem('esp32_ip');
+    showStep(2);
+ 
+    if (!ip) {
+      // IP missing — ask them to enter it and we'll forward manually
+      document.getElementById('sending-status').innerHTML = `
+        <div class="error-icon">⚠</div>
+        <p class="status-title">Device IP not found</p>
+        <p class="status-desc">Please enter your device IP to complete setup.</p>
+        <label class="field-label" style="margin-top:16px;display:block">Device IP address</label>
+        <input type="text" id="ip-retry" placeholder="192.168.1.100"
+          style="width:100%;background:#0a0a0a;border:0.5px solid #1e1e1e;border-radius:8px;
+                 padding:12px 14px;font-family:var(--mono);font-size:15px;color:#f5f5f5;
+                 outline:none;margin:8px 0 16px"/>
+        <button class="btn btn-primary" onclick="sendToDevice(document.getElementById('ip-retry').value, '${code}')">
+          Send to device →
+        </button>`;
+      return;
+    }
+ 
+    document.getElementById('ip-display-inline').textContent = ip;
+    sendToDevice(ip, code);
+  }
+});
+ 
+function sendToDevice(ip, code) {
+  if (!ip) return;
+ 
+  // Update UI
+  const desc = document.getElementById('status-desc');
+  if (desc) desc.textContent = 'Talking to device at ' + ip + '…';
+ 
+  // Redirect the browser to the ESP32's local endpoint
+  // The ESP32 web server catches this and exchanges the code for tokens
+  // This is a redirect (not fetch) so no CORS/mixed-content issues
+  window.location.href = 'http://' + ip + '/callback?code=' + encodeURIComponent(code);
+}
+</script>
+</body>
+</html>
