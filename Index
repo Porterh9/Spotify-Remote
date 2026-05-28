@@ -400,7 +400,7 @@
 <script>
 // ── CONFIG — update these with your Spotify app credentials ──────────────────
 const CLIENT_ID   = 'YOUR_CLIENT_ID_HERE';
-const REDIRECT_URI = 'https://YOUR-USERNAME.github.io/spotify-remote/'; // this page's URL
+const REDIRECT_URI = 'https://porterh9.github.io/Spotify-Remote/';
 const SCOPE       = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
 // ─────────────────────────────────────────────────────────────────────────────
  
