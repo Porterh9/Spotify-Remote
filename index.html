@@ -75,7 +75,7 @@
  
     /* Input */
     label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
-    input[type="text"] {
+    input[type="text"], input[type="password"] {
       width: 100%;
       background: #0a0a0a;
       border: 1px solid var(--border);
@@ -86,8 +86,9 @@
       outline: none;
       transition: border-color 0.2s;
       margin-bottom: 16px;
+      font-family: inherit;
     }
-    input[type="text"]:focus { border-color: var(--brand); }
+    input[type="text"]:focus, input[type="password"]:focus { border-color: var(--brand); }
     input.error { border-color: #e74c3c; }
  
     /* Buttons */
@@ -121,6 +122,13 @@
       line-height: 1.6;
     }
     .info strong { color: var(--brand); }
+    .info a { color: var(--brand); }
+    .info code {
+      background: #08131c;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 12px;
+    }
  
     /* Status */
     .status { text-align: center; padding: 20px 0; }
@@ -157,6 +165,15 @@
     .dots { display: flex; gap: 6px; margin-bottom: 24px; }
     .dot { height: 3px; flex: 1; border-radius: 2px; background: var(--border); transition: background 0.3s; }
     .dot.done { background: var(--brand); }
+
+    .toggle-link {
+      display: inline-block;
+      font-size: 12px;
+      color: var(--brand);
+      cursor: pointer;
+      margin: -8px 0 16px;
+      text-decoration: underline;
+    }
  
     /* Footer */
     .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #333; }
@@ -185,18 +202,41 @@
       <div class="dot" id="d2"></div>
     </div>
  
-    <!-- STEP 0: Enter IP -->
+    <!-- STEP 0: Enter IP + own Spotify app credentials -->
     <div class="step active" id="step-0">
-      <p class="step-label">Step 1 — Find your device</p>
-      <h2>Enter device IP</h2>
-      <p class="desc">Power on your BenchLabs Remote and connect to the same WiFi. The IP address will appear on the screen.</p>
+      <p class="step-label">Step 1 — Connect your Spotify app</p>
+      <h2>Enter your Spotify Developer keys</h2>
+      <p class="desc">
+        Because of Spotify's API rules, each device owner needs their own
+        free Spotify Developer app. It takes about a minute.
+      </p>
       <div class="info">
-        💡 Your IP looks like <strong>192.168.x.x</strong> or <strong>172.20.x.x</strong><br>
-        It's shown on the device screen after connecting to WiFi.
+        1. Go to
+        <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">developer.spotify.com/dashboard</a>
+        and click <strong>Create App</strong>.<br>
+        2. Name it anything (e.g. "My BenchLabs Remote").<br>
+        3. For the <strong>Redirect URI</strong>, paste exactly:<br>
+        <code>https://porterh9.github.io/Spotify-Remote/index.html</code><br>
+        4. Save, open <strong>Settings</strong>, and copy your
+        <strong>Client ID</strong> and <strong>Client Secret</strong> below.
       </div>
+
+      <label for="client-id-input">Spotify Client ID</label>
+      <input type="text" id="client-id-input" placeholder="e.g. bb4d2fccd7c04ef68e46dd00bd7f12b2"
+             autocomplete="off" autocapitalize="off" spellcheck="false"/>
+
+      <label for="client-secret-input">Spotify Client Secret</label>
+      <input type="password" id="client-secret-input" placeholder="paste your client secret"
+             autocomplete="off" autocapitalize="off" spellcheck="false"/>
+      <span class="toggle-link" onclick="toggleSecretVisibility()">show/hide secret</span>
+
       <label for="ip-input">Device IP address</label>
       <input type="text" id="ip-input" placeholder="e.g. 172.20.10.2"
              autocomplete="off" autocapitalize="off" spellcheck="false"/>
+      <p class="desc" style="margin-bottom:16px;font-size:12px">
+        Shown on your BenchLabs Remote's screen once it's connected to WiFi.
+      </p>
+
       <button class="btn btn-brand" onclick="goToSpotify()">
         Continue to Spotify Login →
       </button>
@@ -229,7 +269,8 @@
  
 <script>
   // ── CONFIG ──────────────────────────────────────────────────────────
-  const CLIENT_ID   = 'bb4d2fccd7c04ef68e46dd00bd7f12b2';
+  // NOTE: There is no shared CLIENT_ID anymore. Each customer supplies
+  // their own, entered on this page and carried through the OAuth flow.
   const REDIRECT_URI = 'https://porterh9.github.io/Spotify-Remote/index.html';
   const SCOPE = 'user-read-playback-state user-modify-playback-state user-read-currently-playing user-library-modify user-library-read playlist-read-private playlist-read-collaborative user-read-recently-played';
   // ────────────────────────────────────────────────────────────────────
@@ -244,17 +285,46 @@
     document.getElementById('step-' + n).classList.add('active');
     setDots(n);
   }
+
+  function toggleSecretVisibility() {
+    const el = document.getElementById('client-secret-input');
+    el.type = el.type === 'password' ? 'text' : 'password';
+  }
  
   function goToSpotify() {
     const ip = document.getElementById('ip-input').value.trim();
+    const clientId = document.getElementById('client-id-input').value.trim();
+    const clientSecret = document.getElementById('client-secret-input').value.trim();
+
+    let ok = true;
+    document.getElementById('ip-input').classList.remove('error');
+    document.getElementById('client-id-input').classList.remove('error');
+    document.getElementById('client-secret-input').classList.remove('error');
+
     if (!ip || !ip.match(/^[\d.]+$/)) {
       document.getElementById('ip-input').classList.add('error');
-      return;
+      ok = false;
     }
+    if (!clientId) {
+      document.getElementById('client-id-input').classList.add('error');
+      ok = false;
+    }
+    if (!clientSecret) {
+      document.getElementById('client-secret-input').classList.add('error');
+      ok = false;
+    }
+    if (!ok) return;
+
+    // Kept only in sessionStorage for this tab's session — cleared once
+    // the browser is closed. Never sent anywhere except to Spotify and
+    // to the customer's own device on their own local network.
     sessionStorage.setItem('esp_ip', ip);
+    sessionStorage.setItem('spotify_client_id', clientId);
+    sessionStorage.setItem('spotify_client_secret', clientSecret);
+
     showStep(1);
     const params = new URLSearchParams({
-      client_id:     CLIENT_ID,
+      client_id:     clientId,
       response_type: 'code',
       redirect_uri:  REDIRECT_URI,
       scope:         SCOPE,
@@ -286,34 +356,56 @@
  
     if (code) {
       const ip = sessionStorage.getItem('esp_ip');
+      const clientId = sessionStorage.getItem('spotify_client_id');
+      const clientSecret = sessionStorage.getItem('spotify_client_secret');
       showStep(2);
  
-      if (!ip) {
-        // IP missing — ask again
+      if (!ip || !clientId || !clientSecret) {
+        // Something's missing (e.g. new tab/session) — ask again.
         document.getElementById('step2-body').innerHTML = `
           <div class="error-icon">⚠</div>
-          <h3>Device IP needed</h3>
-          <p style="margin-bottom:14px">Please enter your device IP to finish setup.</p>
+          <h3>A few details are needed</h3>
+          <p style="margin-bottom:14px">Please re-enter these to finish setup.</p>
           <label>Device IP address</label>
           <input type="text" id="ip-retry" placeholder="172.20.10.2"
                  style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;
                         padding:12px;font-size:16px;color:#f5f5f5;margin:8px 0 12px"/>
+          <label>Spotify Client ID</label>
+          <input type="text" id="client-id-retry" placeholder="Client ID"
+                 style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;
+                        padding:12px;font-size:16px;color:#f5f5f5;margin:8px 0 12px"/>
+          <label>Spotify Client Secret</label>
+          <input type="password" id="client-secret-retry" placeholder="Client Secret"
+                 style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;
+                        padding:12px;font-size:16px;color:#f5f5f5;margin:8px 0 12px"/>
           <button class="btn btn-brand"
-                  onclick="sendToDevice(document.getElementById('ip-retry').value,'${code}')">
+                  onclick="sendToDevice(
+                    document.getElementById('ip-retry').value,
+                    '${code}',
+                    document.getElementById('client-id-retry').value,
+                    document.getElementById('client-secret-retry').value
+                  )">
             Send to device →
           </button>`;
         return;
       }
  
       document.getElementById('step2-desc').textContent = 'Sending to device at ' + ip + '…';
-      sendToDevice(ip, code);
+      sendToDevice(ip, code, clientId, clientSecret);
     }
   });
  
-  function sendToDevice(ip, code) {
-    if (!ip) return;
-    // Redirect browser to ESP32 callback endpoint
-    window.location.href = 'http://' + ip.trim() + '/callback?code=' + encodeURIComponent(code);
+  function sendToDevice(ip, code, clientId, clientSecret) {
+    if (!ip || !clientId || !clientSecret) return;
+    // Redirect browser to the ESP32's local callback endpoint, carrying
+    // the auth code plus the customer's own Client ID/Secret so the
+    // device can complete the token exchange and store them for future
+    // refreshes.
+    const url = 'http://' + ip.trim() + '/callback'
+      + '?code=' + encodeURIComponent(code)
+      + '&client_id=' + encodeURIComponent(clientId)
+      + '&client_secret=' + encodeURIComponent(clientSecret);
+    window.location.href = url;
   }
 </script>
 </body>
