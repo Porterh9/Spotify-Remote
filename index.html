@@ -18,7 +18,7 @@
       /* ── Unified type scale — every element below pulls from here ── */
       --fs-title: 26px;      /* page masthead only */
       --fs-h2: 20px;         /* step headline */
-      --fs-eyebrow: 11px;    /* "STEP X OF 3" label */
+      --fs-eyebrow: 11px;    /* "STEP X OF 2" label */
       --fs-body: 14px;       /* all paragraph / description copy */
       --fs-label: 13px;      /* every form field label */
       --fs-input: 16px;      /* every text/password input */
@@ -83,7 +83,7 @@
     h2 { font-size: var(--fs-h2); font-weight: 600; margin-bottom: 8px; }
     p.desc { font-size: var(--fs-body); color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
 
-    /* Laptop recommendation banner — same treatment everywhere it appears */
+    /* Laptop recommendation banner */
     .laptop-note {
       display: flex;
       align-items: center;
@@ -229,7 +229,7 @@
   <div class="header">
     <div class="logo">BL</div>
     <h1>BenchLabs <span>Remote</span></h1>
-    <p class="subtitle">Device setup — 3 easy steps</p>
+    <p class="subtitle">Device setup — 2 easy steps</p>
     <div class="works-with">Works with Spotify Premium</div>
   </div>
 
@@ -237,33 +237,14 @@
     <div class="dots">
       <div class="dot" id="d0"></div>
       <div class="dot" id="d1"></div>
-      <div class="dot" id="d2"></div>
     </div>
 
-    <!-- STEP 1 of 3: Connect to WiFi -->
+    <!-- STEP 1 of 2: Spotify Developer Keys -->
+    <!-- (No separate "connect to WiFi" step here — the device already has
+         to be on your home WiFi for you to reach its IP address in Step 2,
+         so there's nothing to confirm before this point. -->
     <div class="step active" id="step-0">
-      <p class="step-label">Step 1 of 3</p>
-      <h2>Connect your device to WiFi</h2>
-      <p class="desc">
-        Power on your BenchLabs Remote. On its screen, connect a phone or
-        computer to the WiFi network it broadcasts, then follow the
-        on-screen instructions to join your home WiFi.
-      </p>
-      <div class="info">
-        1. Connect to WiFi network <strong>BenchLabs-Setup</strong>
-        (password: <code>benchlabs</code>)<br>
-        2. Visit <strong>192.168.4.1</strong> in a browser<br>
-        3. Choose your home WiFi network and enter its password<br>
-        4. The device will restart and show its new IP address on screen
-      </div>
-      <button class="btn btn-brand" onclick="showStep(1)">
-        My device is connected to WiFi →
-      </button>
-    </div>
-
-    <!-- STEP 2 of 3: Spotify Developer Keys -->
-    <div class="step" id="step-1">
-      <p class="step-label">Step 2 of 3</p>
+      <p class="step-label">Step 1 of 2</p>
       <h2>Enter your Spotify Developer keys</h2>
       <p class="desc">
         Because of Spotify's API rules, each device owner needs their own
@@ -282,7 +263,10 @@
         2. Name it anything (e.g. "My BenchLabs Remote").<br>
         3. For the <strong>Redirect URI</strong>, paste exactly:<br>
         <code>https://porterh9.github.io/Spotify-Remote/index.html</code><br>
-        4. Save, open <strong>Settings</strong>, and copy your
+        4. Leave every other box on that form blank — description,
+        website, other redirect URIs, API/SDK checkboxes, all of it.
+        None of it is needed.<br>
+        5. Save, open <strong>Settings</strong>, and copy your
         <strong>Client ID</strong> and <strong>Client Secret</strong> below.
       </div>
 
@@ -298,12 +282,11 @@
       <button class="btn btn-brand" onclick="goToStep2()">
         Continue →
       </button>
-      <button class="btn btn-secondary" onclick="showStep(0)">← Back</button>
     </div>
 
-    <!-- STEP 3 of 3: Device IP -->
-    <div class="step" id="step-2">
-      <p class="step-label">Step 3 of 3</p>
+    <!-- STEP 2 of 2: Device IP -->
+    <div class="step" id="step-1">
+      <p class="step-label">Step 2 of 2</p>
       <h2>Enter your device's IP address</h2>
       <p class="desc">
         This is shown on your BenchLabs Remote's screen once it's
@@ -316,11 +299,11 @@
       <button class="btn btn-brand" onclick="goToSpotify()">
         Continue to Spotify Login →
       </button>
-      <button class="btn btn-secondary" onclick="showStep(1)">← Back</button>
+      <button class="btn btn-secondary" onclick="showStep(0)">← Back</button>
     </div>
 
     <!-- Redirecting (transitional — not a numbered step) -->
-    <div class="step" id="step-3">
+    <div class="step" id="step-2">
       <div class="status">
         <div class="spinner"></div>
         <h3>Redirecting to Spotify…</h3>
@@ -329,7 +312,7 @@
     </div>
 
     <!-- Sending to device (transitional — not a numbered step) -->
-    <div class="step" id="step-4">
+    <div class="step" id="step-3">
       <div class="status" id="step2-body">
         <div class="spinner"></div>
         <h3>Connecting to your remote…</h3>
@@ -350,18 +333,18 @@
   const SCOPE = 'user-read-playback-state user-modify-playback-state user-read-currently-playing user-library-modify user-library-read playlist-read-private playlist-read-collaborative user-read-recently-played';
   // ────────────────────────────────────────────────────────────────────
 
-  // Dots track progress through the 3 numbered steps (indices 0-2).
-  // Once the user moves past step 3 into the redirect/connecting
-  // screens, all 3 stay marked done since setup itself is complete.
+  // Dots track progress through the 2 numbered steps (indices 0-1).
+  // Once the user moves past step 2 into the redirect/connecting
+  // screens, both stay marked done since setup itself is complete.
   function setDots(n) {
-    for (let i = 0; i < 3; i++)
+    for (let i = 0; i < 2; i++)
       document.getElementById('d' + i).classList.toggle('done', i <= n);
   }
 
   function showStep(n) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById('step-' + n).classList.add('active');
-    setDots(Math.min(n, 2));
+    setDots(Math.min(n, 1));
   }
 
   function toggleSecretVisibility() {
@@ -383,7 +366,7 @@
 
     sessionStorage.setItem('spotify_client_id', clientId);
     sessionStorage.setItem('spotify_client_secret', clientSecret);
-    showStep(2);
+    showStep(1);
   }
 
   function goToSpotify() {
@@ -399,13 +382,13 @@
     }
     if (!clientId || !clientSecret) {
       // Shouldn't normally happen, but if the user jumped straight to
-      // step 3 (e.g. reloaded the page), send them back to step 2.
-      showStep(1);
+      // step 2 (e.g. reloaded the page), send them back to step 1.
+      showStep(0);
       return;
     }
 
     sessionStorage.setItem('esp_ip', ip);
-    showStep(3);
+    showStep(2);
     const params = new URLSearchParams({
       client_id:     clientId,
       response_type: 'code',
@@ -425,7 +408,7 @@
     const error  = params.get('error');
 
     if (error) {
-      showStep(4);
+      showStep(3);
       document.getElementById('step2-body').innerHTML = `
         <div class="error-icon">✕</div>
         <h3>Login cancelled</h3>
@@ -441,7 +424,7 @@
       const ip = sessionStorage.getItem('esp_ip');
       const clientId = sessionStorage.getItem('spotify_client_id');
       const clientSecret = sessionStorage.getItem('spotify_client_secret');
-      showStep(4);
+      showStep(3);
 
       if (!ip || !clientId || !clientSecret) {
         // Something's missing (e.g. new tab/session) — ask again, using
