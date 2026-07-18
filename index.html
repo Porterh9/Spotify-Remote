@@ -14,6 +14,16 @@
       --border: #222222;
       --text: #f5f5f5;
       --muted: #888888;
+
+      /* ── Unified type scale — every element below pulls from here ── */
+      --fs-title: 26px;      /* page masthead only */
+      --fs-h2: 20px;         /* step headline */
+      --fs-eyebrow: 11px;    /* "STEP X OF 3" label */
+      --fs-body: 14px;       /* all paragraph / description copy */
+      --fs-label: 13px;      /* every form field label */
+      --fs-input: 16px;      /* every text/password input */
+      --fs-button: 15px;     /* every button */
+      --fs-small: 12px;      /* footer / pill / fine print */
     }
     body {
       background: var(--black);
@@ -27,7 +37,7 @@
       padding: 24px;
     }
     .wrap { width: 100%; max-width: 440px; }
- 
+
     /* Header */
     .header { text-align: center; margin-bottom: 32px; }
     .logo {
@@ -36,23 +46,23 @@
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 16px;
-      font-size: 22px;
+      font-size: var(--fs-h2);
       font-weight: 800;
       color: #000;
     }
-    h1 { font-size: 26px; font-weight: 700; }
+    h1 { font-size: var(--fs-title); font-weight: 700; }
     h1 span { color: var(--brand); }
-    .subtitle { color: var(--muted); font-size: 14px; margin-top: 6px; }
+    .subtitle { color: var(--muted); font-size: var(--fs-body); margin-top: 6px; }
     .works-with {
       display: inline-block;
       margin-top: 10px;
-      font-size: 12px;
+      font-size: var(--fs-small);
       color: var(--muted);
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 4px 12px;
     }
- 
+
     /* Card */
     .card {
       background: var(--card);
@@ -62,26 +72,47 @@
     }
     .step { display: none; }
     .step.active { display: block; }
- 
+
     .step-label {
-      font-size: 11px;
+      font-size: var(--fs-eyebrow);
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--muted);
       margin-bottom: 8px;
     }
-    h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-    p.desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
- 
-    /* Input */
-    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+    h2 { font-size: var(--fs-h2); font-weight: 600; margin-bottom: 8px; }
+    p.desc { font-size: var(--fs-body); color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+
+    /* Laptop recommendation banner — same treatment everywhere it appears */
+    .laptop-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #12210a;
+      border: 1px solid #234015;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: var(--fs-body);
+      color: #9ed67a;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* Input + label — one shared set of rules used by every field, */
+    /* including the fallback/retry fields (no more inline-styled duplicates) */
+    label {
+      font-size: var(--fs-label);
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+    }
     input[type="text"], input[type="password"] {
       width: 100%;
       background: #0a0a0a;
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px 14px;
-      font-size: 16px;
+      font-size: var(--fs-input);
       color: var(--text);
       outline: none;
       transition: border-color 0.2s;
@@ -90,12 +121,12 @@
     }
     input[type="text"]:focus, input[type="password"]:focus { border-color: var(--brand); }
     input.error { border-color: #e74c3c; }
- 
+
     /* Buttons */
     .btn {
       display: block; width: 100%;
       padding: 13px; border-radius: 8px;
-      font-size: 15px; font-weight: 600;
+      font-size: var(--fs-button); font-weight: 600;
       cursor: pointer; border: none;
       transition: opacity 0.2s, transform 0.1s;
       text-align: center;
@@ -106,17 +137,24 @@
     .btn-ghost {
       background: transparent; color: var(--muted);
       border: 1px solid var(--border);
-      margin-top: 10px; font-size: 13px;
+      margin-top: 10px; font-size: var(--fs-body);
     }
     .btn-ghost:hover { color: var(--text); }
- 
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 10px;
+    }
+    .btn-secondary:hover { border-color: var(--brand); }
+
     /* Info box */
     .info {
       background: #0a1620;
       border: 1px solid #1a3040;
       border-radius: 8px;
       padding: 12px 14px;
-      font-size: 13px;
+      font-size: var(--fs-body);
       color: #4aa8d8;
       margin-bottom: 16px;
       line-height: 1.6;
@@ -127,9 +165,9 @@
       background: #08131c;
       border-radius: 4px;
       padding: 1px 5px;
-      font-size: 12px;
+      font-size: var(--fs-label);
     }
- 
+
     /* Status */
     .status { text-align: center; padding: 20px 0; }
     .spinner {
@@ -140,9 +178,9 @@
       animation: spin 0.8s linear infinite;
       margin: 0 auto 16px;
     }
-    .status h3 { font-size: 18px; margin-bottom: 6px; }
-    .status p { font-size: 13px; color: var(--muted); }
- 
+    .status h3 { font-size: var(--fs-h2); margin-bottom: 6px; }
+    .status p { font-size: var(--fs-body); color: var(--muted); }
+
     .success-icon {
       width: 52px; height: 52px;
       background: var(--brand);
@@ -160,7 +198,7 @@
       margin: 0 auto 16px;
       font-size: 26px;
     }
- 
+
     /* Step dots */
     .dots { display: flex; gap: 6px; margin-bottom: 24px; }
     .dot { height: 3px; flex: 1; border-radius: 2px; background: var(--border); transition: background 0.3s; }
@@ -168,16 +206,16 @@
 
     .toggle-link {
       display: inline-block;
-      font-size: 12px;
+      font-size: var(--fs-label);
       color: var(--brand);
       cursor: pointer;
       margin: -8px 0 16px;
       text-decoration: underline;
     }
- 
+
     /* Footer */
-    .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #333; }
- 
+    .footer { text-align: center; margin-top: 24px; font-size: var(--fs-small); color: #333; }
+
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(12px); }
@@ -191,25 +229,52 @@
   <div class="header">
     <div class="logo">BL</div>
     <h1>BenchLabs <span>Remote</span></h1>
-    <p class="subtitle">Device setup — connect your account</p>
-    <div class="works-with">Works with Spotify</div>
+    <p class="subtitle">Device setup — 3 easy steps</p>
+    <div class="works-with">Works with Spotify Premium</div>
   </div>
- 
+
   <div class="card">
     <div class="dots">
       <div class="dot" id="d0"></div>
       <div class="dot" id="d1"></div>
       <div class="dot" id="d2"></div>
     </div>
- 
-    <!-- STEP 0: Enter IP + own Spotify app credentials -->
+
+    <!-- STEP 1 of 3: Connect to WiFi -->
     <div class="step active" id="step-0">
-      <p class="step-label">Step 1 — Connect your Spotify app</p>
+      <p class="step-label">Step 1 of 3</p>
+      <h2>Connect your device to WiFi</h2>
+      <p class="desc">
+        Power on your BenchLabs Remote. On its screen, connect a phone or
+        computer to the WiFi network it broadcasts, then follow the
+        on-screen instructions to join your home WiFi.
+      </p>
+      <div class="info">
+        1. Connect to WiFi network <strong>BenchLabs-Setup</strong>
+        (password: <code>benchlabs</code>)<br>
+        2. Visit <strong>192.168.4.1</strong> in a browser<br>
+        3. Choose your home WiFi network and enter its password<br>
+        4. The device will restart and show its new IP address on screen
+      </div>
+      <button class="btn btn-brand" onclick="showStep(1)">
+        My device is connected to WiFi →
+      </button>
+    </div>
+
+    <!-- STEP 2 of 3: Spotify Developer Keys -->
+    <div class="step" id="step-1">
+      <p class="step-label">Step 2 of 3</p>
       <h2>Enter your Spotify Developer keys</h2>
       <p class="desc">
         Because of Spotify's API rules, each device owner needs their own
-        free Spotify Developer app. It takes about a minute.
+        free Spotify Developer app (and a Spotify Premium account). It
+        takes about a minute.
       </p>
+      <div class="laptop-note">
+        💻 Recommended: do this on a laptop or computer — you'll be
+        copy/pasting a couple of long keys, which is easiest with a
+        real keyboard.
+      </div>
       <div class="info">
         1. Go to
         <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">developer.spotify.com/dashboard</a>
@@ -230,43 +295,53 @@
              autocomplete="off" autocapitalize="off" spellcheck="false"/>
       <span class="toggle-link" onclick="toggleSecretVisibility()">show/hide secret</span>
 
+      <button class="btn btn-brand" onclick="goToStep2()">
+        Continue →
+      </button>
+      <button class="btn btn-secondary" onclick="showStep(0)">← Back</button>
+    </div>
+
+    <!-- STEP 3 of 3: Device IP -->
+    <div class="step" id="step-2">
+      <p class="step-label">Step 3 of 3</p>
+      <h2>Enter your device's IP address</h2>
+      <p class="desc">
+        This is shown on your BenchLabs Remote's screen once it's
+        connected to your home WiFi.
+      </p>
       <label for="ip-input">Device IP address</label>
       <input type="text" id="ip-input" placeholder="e.g. 172.20.10.2"
              autocomplete="off" autocapitalize="off" spellcheck="false"/>
-      <p class="desc" style="margin-bottom:16px;font-size:12px">
-        Shown on your BenchLabs Remote's screen once it's connected to WiFi.
-      </p>
 
       <button class="btn btn-brand" onclick="goToSpotify()">
         Continue to Spotify Login →
       </button>
+      <button class="btn btn-secondary" onclick="showStep(1)">← Back</button>
     </div>
- 
-    <!-- STEP 1: Redirecting -->
-    <div class="step" id="step-1">
-      <p class="step-label">Step 2 — Spotify login</p>
+
+    <!-- Redirecting (transitional — not a numbered step) -->
+    <div class="step" id="step-3">
       <div class="status">
         <div class="spinner"></div>
         <h3>Redirecting to Spotify…</h3>
         <p>Log in and tap <strong>Allow</strong> to connect your account.</p>
       </div>
     </div>
- 
-    <!-- STEP 2: Sending to device -->
-    <div class="step" id="step-2">
-      <p class="step-label">Step 3 — Connecting device</p>
+
+    <!-- Sending to device (transitional — not a numbered step) -->
+    <div class="step" id="step-4">
       <div class="status" id="step2-body">
         <div class="spinner"></div>
         <h3>Connecting to your remote…</h3>
         <p id="step2-desc">Sending auth to device…</p>
       </div>
     </div>
- 
+
   </div>
- 
+
   <p class="footer">BenchLabs &nbsp;·&nbsp; connect once, play forever</p>
 </div>
- 
+
 <script>
   // ── CONFIG ──────────────────────────────────────────────────────────
   // NOTE: There is no shared CLIENT_ID anymore. Each customer supplies
@@ -274,55 +349,63 @@
   const REDIRECT_URI = 'https://porterh9.github.io/Spotify-Remote/index.html';
   const SCOPE = 'user-read-playback-state user-modify-playback-state user-read-currently-playing user-library-modify user-library-read playlist-read-private playlist-read-collaborative user-read-recently-played';
   // ────────────────────────────────────────────────────────────────────
- 
+
+  // Dots track progress through the 3 numbered steps (indices 0-2).
+  // Once the user moves past step 3 into the redirect/connecting
+  // screens, all 3 stay marked done since setup itself is complete.
   function setDots(n) {
     for (let i = 0; i < 3; i++)
       document.getElementById('d' + i).classList.toggle('done', i <= n);
   }
- 
+
   function showStep(n) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById('step-' + n).classList.add('active');
-    setDots(n);
+    setDots(Math.min(n, 2));
   }
 
   function toggleSecretVisibility() {
     const el = document.getElementById('client-secret-input');
     el.type = el.type === 'password' ? 'text' : 'password';
   }
- 
-  function goToSpotify() {
-    const ip = document.getElementById('ip-input').value.trim();
+
+  function goToStep2() {
     const clientId = document.getElementById('client-id-input').value.trim();
     const clientSecret = document.getElementById('client-secret-input').value.trim();
 
-    let ok = true;
-    document.getElementById('ip-input').classList.remove('error');
     document.getElementById('client-id-input').classList.remove('error');
     document.getElementById('client-secret-input').classList.remove('error');
 
-    if (!ip || !ip.match(/^[\d.]+$/)) {
-      document.getElementById('ip-input').classList.add('error');
-      ok = false;
-    }
-    if (!clientId) {
-      document.getElementById('client-id-input').classList.add('error');
-      ok = false;
-    }
-    if (!clientSecret) {
-      document.getElementById('client-secret-input').classList.add('error');
-      ok = false;
-    }
+    let ok = true;
+    if (!clientId) { document.getElementById('client-id-input').classList.add('error'); ok = false; }
+    if (!clientSecret) { document.getElementById('client-secret-input').classList.add('error'); ok = false; }
     if (!ok) return;
 
-    // Kept only in sessionStorage for this tab's session — cleared once
-    // the browser is closed. Never sent anywhere except to Spotify and
-    // to the customer's own device on their own local network.
-    sessionStorage.setItem('esp_ip', ip);
     sessionStorage.setItem('spotify_client_id', clientId);
     sessionStorage.setItem('spotify_client_secret', clientSecret);
+    showStep(2);
+  }
 
-    showStep(1);
+  function goToSpotify() {
+    const ip = document.getElementById('ip-input').value.trim();
+    const clientId = sessionStorage.getItem('spotify_client_id');
+    const clientSecret = sessionStorage.getItem('spotify_client_secret');
+
+    document.getElementById('ip-input').classList.remove('error');
+
+    if (!ip || !ip.match(/^[\d.]+$/)) {
+      document.getElementById('ip-input').classList.add('error');
+      return;
+    }
+    if (!clientId || !clientSecret) {
+      // Shouldn't normally happen, but if the user jumped straight to
+      // step 3 (e.g. reloaded the page), send them back to step 2.
+      showStep(1);
+      return;
+    }
+
+    sessionStorage.setItem('esp_ip', ip);
+    showStep(3);
     const params = new URLSearchParams({
       client_id:     clientId,
       response_type: 'code',
@@ -334,15 +417,15 @@
       window.location.href = 'https://accounts.spotify.com/authorize?' + params;
     }, 600);
   }
- 
+
   // ── Handle OAuth callback ─────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const code   = params.get('code');
     const error  = params.get('error');
- 
+
     if (error) {
-      showStep(2);
+      showStep(4);
       document.getElementById('step2-body').innerHTML = `
         <div class="error-icon">✕</div>
         <h3>Login cancelled</h3>
@@ -353,31 +436,26 @@
         </button>`;
       return;
     }
- 
+
     if (code) {
       const ip = sessionStorage.getItem('esp_ip');
       const clientId = sessionStorage.getItem('spotify_client_id');
       const clientSecret = sessionStorage.getItem('spotify_client_secret');
-      showStep(2);
- 
+      showStep(4);
+
       if (!ip || !clientId || !clientSecret) {
-        // Something's missing (e.g. new tab/session) — ask again.
+        // Something's missing (e.g. new tab/session) — ask again, using
+        // the same shared input/label styling as the main steps.
         document.getElementById('step2-body').innerHTML = `
           <div class="error-icon">⚠</div>
           <h3>A few details are needed</h3>
           <p style="margin-bottom:14px">Please re-enter these to finish setup.</p>
-          <label>Device IP address</label>
-          <input type="text" id="ip-retry" placeholder="172.20.10.2"
-                 style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;
-                        padding:12px;font-size:16px;color:#f5f5f5;margin:8px 0 12px"/>
-          <label>Spotify Client ID</label>
-          <input type="text" id="client-id-retry" placeholder="Client ID"
-                 style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;
-                        padding:12px;font-size:16px;color:#f5f5f5;margin:8px 0 12px"/>
-          <label>Spotify Client Secret</label>
-          <input type="password" id="client-secret-retry" placeholder="Client Secret"
-                 style="width:100%;background:#0a0a0a;border:1px solid #222;border-radius:8px;
-                        padding:12px;font-size:16px;color:#f5f5f5;margin:8px 0 12px"/>
+          <label for="client-id-retry">Spotify Client ID</label>
+          <input type="text" id="client-id-retry" placeholder="Client ID"/>
+          <label for="client-secret-retry">Spotify Client Secret</label>
+          <input type="password" id="client-secret-retry" placeholder="Client Secret"/>
+          <label for="ip-retry">Device IP address</label>
+          <input type="text" id="ip-retry" placeholder="172.20.10.2"/>
           <button class="btn btn-brand"
                   onclick="sendToDevice(
                     document.getElementById('ip-retry').value,
@@ -389,12 +467,12 @@
           </button>`;
         return;
       }
- 
+
       document.getElementById('step2-desc').textContent = 'Sending to device at ' + ip + '…';
       sendToDevice(ip, code, clientId, clientSecret);
     }
   });
- 
+
   function sendToDevice(ip, code, clientId, clientSecret) {
     if (!ip || !clientId || !clientSecret) return;
     // Redirect browser to the ESP32's local callback endpoint, carrying
