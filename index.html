@@ -430,18 +430,35 @@
       showStep(3);
 
       if (!ip || !clientId || !clientSecret) {
-        // Something's missing (e.g. new tab/session) — ask again, using
-        // the same shared input/label styling as the main steps.
+        // Something's missing (e.g. a new tab, or a returning customer
+        // reconnecting months later). The device already has the Client ID
+        // and Secret saved in flash from the first setup, so DO NOT force
+        // them to be re-entered — the firmware falls back to the stored
+        // values when these arrive empty. Only the address is required.
         document.getElementById('step2-body').innerHTML = `
-          <div class="error-icon">⚠</div>
-          <h3>A few details are needed</h3>
-          <p style="margin-bottom:14px">Please re-enter these to finish setup.</p>
-          <label for="client-id-retry">Spotify Client ID</label>
-          <input type="text" id="client-id-retry" placeholder="Client ID"/>
-          <label for="client-secret-retry">Spotify Client Secret</label>
-          <input type="password" id="client-secret-retry" placeholder="Client Secret"/>
-          <label for="ip-retry">Device IP address</label>
-          <input type="text" id="ip-retry" placeholder="172.20.10.2"/>
+          <h3>Almost done</h3>
+          <p style="margin-bottom:14px">Enter the address shown on your
+          remote's screen. If you've set this remote up before, leave the
+          two Spotify boxes empty — it already remembers them.</p>
+          <label for="ip-retry">Device address</label>
+          <input type="text" id="ip-retry" placeholder="benchlabs.local"/>
+          <p style="margin:6px 0 14px;font-size:12px;opacity:.7">
+            Use whatever your remote shows, e.g. <code>192.168.1.155</code> or
+            <code>benchlabs.local</code>. If neither works, join the WiFi named
+            <b>BenchLabs-Setup</b> (password <b>benchlabs</b>) and use
+            <code>192.168.4.1</code> instead.
+          </p>
+          <details style="margin-bottom:14px">
+            <summary style="cursor:pointer;opacity:.75">
+              First-time setup? Enter your Spotify keys
+            </summary>
+            <div style="margin-top:10px">
+              <label for="client-id-retry">Spotify Client ID</label>
+              <input type="text" id="client-id-retry" placeholder="Leave blank if already set up"/>
+              <label for="client-secret-retry">Spotify Client Secret</label>
+              <input type="password" id="client-secret-retry" placeholder="Leave blank if already set up"/>
+            </div>
+          </details>
           <button class="btn btn-brand"
                   onclick="sendToDevice(
                     document.getElementById('ip-retry').value,
@@ -460,15 +477,24 @@
   });
 
   function sendToDevice(ip, code, clientId, clientSecret) {
-    if (!ip || !clientId || !clientSecret) return;
+    // Only the address is required. A returning customer's device already
+    // holds their Client ID/Secret in flash, and handleCallback() falls
+    // back to those when these params are absent — so blank is valid and
+    // must not block the request.
+    if (!ip) {
+      alert('Please enter the address shown on your remote\'s screen.');
+      return;
+    }
     // Redirect browser to the ESP32's local callback endpoint, carrying
     // the auth code plus the customer's own Client ID/Secret so the
     // device can complete the token exchange and store them for future
     // refreshes.
-    const url = 'http://' + ip.trim() + '/callback'
-      + '?code=' + encodeURIComponent(code)
-      + '&client_id=' + encodeURIComponent(clientId)
-      + '&client_secret=' + encodeURIComponent(clientSecret);
+    let url = 'http://' + ip.trim().replace(/^https?:\/\//, '') + '/callback'
+      + '?code=' + encodeURIComponent(code);
+    if (clientId && clientSecret) {
+      url += '&client_id=' + encodeURIComponent(clientId)
+           + '&client_secret=' + encodeURIComponent(clientSecret);
+    }
     window.location.href = url;
   }
 </script>
